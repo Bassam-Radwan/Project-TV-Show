@@ -9,28 +9,50 @@
   </head>
 
   <body>
-   <div> 
-    <input type="search" id="searchBar" placeholder="Search for an episode..." />
-   <br>
-   <br>
-    <label for="episodeSelector">Sort by:</label>
-    <select id="episodeSelector">
-      <option value="all">All Episodes</option>
+    <div class="searchContainer" id="searchContainer">
+      <label for="showType"></label>
+      <select name="showType" id="showType" class="episodeSelector">
+        <option value="all">All shows</option>
+      </select>
 
-    </select>
-    <br>
-   <br>
-  </div>
-    <div id="root">
+      <label for="episodeSelector"></label>
+      <select
+        name="episodeSelector"
+        class="episodeSelector"
+        id="episodeSelector"
+      >
+        <option value="default">All Episodes</option>
+      </select>
+
+      <input id="searchBar" type="search" placeholder="Search..." />
+      <label for="searchBar"></label>
+      <p title="  Search For Episodes 🔎">
+        Displaying <span id="manyEpisodes"></span> Episodes
+      </p>
+      <div class="loader" id="loader">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
     </div>
+    <div id="root"></div>
 
-    <!-- Loads a provided function called getAllEpisodes() which returns all episodes -->
-    <script src="episodes.js"></script>
+    <!-- error element  -->
+    <div id="error404">
+      <div class="stars"></div>
 
-    <!-- Loads YOUR javascript code -->
+      <div class="containererror">
+        <div class="number">404</div>
+        <div class="message">Oops! You're lost in space.</div>
+        <a href="/" class="button">Go Back Home</a>
+      </div>
+    </div>
     <script src="script.js"></script>
     <footer>
-      <p>Data originally from <a href="https://www.tvmaze.com" target="_blank">TVMaze.com</a></p>
+      <p>
+        Data originally from
+        <a href="https://www.tvmaze.com" target="_blank">TVMaze.com</a>
+      </p>
     </footer>
   </body>
 </html>

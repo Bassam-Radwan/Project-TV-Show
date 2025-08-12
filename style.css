@@ -1,62 +1,154 @@
-*{
+* {
   box-sizing: border-box;
 }
-body{
+
+body {
   font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
-  padding: 10px;
-  background-color: rgb(238, 238, 233);
+  background-color: rgb(249 241 235);
+  overflow-x: hidden;
 }
 
-#root{
+#root {
   display: grid;
-  grid-template-columns: repeat(auto-fit , minmax(350px , 1fr) );
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 50px;
-  
+  padding: 20px;
+
 }
-.container{
+
+.container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
   gap: 15px;
-  padding:0 15px;
-  background-color:white;
+  padding: 0 15px;
+  background-color: white;
   border-radius: 5px;
-  box-shadow: 0px 0px 2px 0px;
-  transition: .3s ;
+  transition: .3s;
 }
-.container:hover{
-  box-shadow: 0px 1px 3px 1px #7aced0;
+
+.container:hover {
+  box-shadow: 0px 0px 12px 2px #8be0e1;
   transform: scale(1.02);
 }
-.container h2{
-  width: 80%;
+
+.container h2 {
+  color: rgb(218, 123, 123);
+  /* width: 80%; */
   font-weight: bold;
 }
 
-.container .heading{
+.container .heading {
   padding: 0 10px;
   text-align: center;
   width: 107%;
-  border: 2px solid black ;
   border-radius: 5px;
 }
-.container a img{
+
+.container a img {
+  width: 115%;
   filter: grayscale(1);
   transition: .3s;
 }
-.container a img:hover{
+
+.container a img:hover {
   filter: grayscale(0);
   transform: scale(1.03);
 }
-.container:hover.container .heading {
-  border: 2px solid #7aced0;
+
+.container:hover.container p {
+  color: rgb(61, 54, 54);
 }
+
 .container p {
   color: rgb(159, 159, 153);
-  width: 70%;
+  width: 80%;
+  margin: 10px auto;
+  line-height: 1.5;
+  transition: .5s .1s;
 }
-footer{
+
+::placeholder {
+  color: rgba(0, 0, 0, 0.599);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-weight: 500;
+}
+
+/* search container */
+.searchContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  background-color: rgb(144, 219, 222);
+  padding: 10px;
+  border-radius: 10px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  margin: 0 -7px;
+  animation: curtainDrop 1s ease-out forwards;
+  transition: .3s;
+}
+
+@media (max-width:768px) {
+  .searchContainer {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+/* select bar  */
+.searchContainer .episodeSelector {
+  padding: 10px 15px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  color: #333;
+  background-position: right 10px center;
+  background-size: 10px 5px;
+  cursor: pointer;
+  transition: border-color 0.5s ease;
+}
+
+option {
+  color: rgb(1, 54, 46);
+}
+
+.searchContainer .episodeSelector:focus {
+  outline: none;
+  border: rgb(218, 123, 123) 2px solid;
+}
+
+/* Search bar  */
+.searchContainer #searchBar {
+  padding: 15px;
+  width: 250px;
+  height: 40px;
+  border-radius: 5px;
+  border: none;
+  text-align: center;
+}
+
+.searchContainer #searchBar:focus {
+  outline: none;
+  border: rgb(218, 123, 123) 2px solid;
+  background-color: #ffffff;
+}
+
+.searchContainer p {
+  font-size: large;
+  border-bottom: 3px solid rgb(218, 123, 123);
+  cursor: pointer;
+}
+
+.searchContainer #manyEpisodes {
+  text-decoration: underline;
+}
+
+footer {
   margin-top: 10px;
   font-size: large;
   background-color: #020042;
@@ -64,10 +156,148 @@ footer{
   padding: 20px;
   text-align: center;
 }
+
 footer a {
   text-decoration: none;
   color: #7aced0;
 }
-footer a:hover{
+
+footer a:hover {
   text-decoration: underline;
+}
+
+/*  */
+.stars {
+  /* background: url("https://www.transparenttextures.com/patterns/stardust.png"); */
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 200%;
+  animation: moveStars 60s linear infinite;
+  z-index: 0;
+  opacity: 0.2;
+}
+
+@keyframes moveStars {
+  0% {
+    transform: translate(0, 0);
+  }
+
+  100% {
+    transform: translate(-50%, -50%);
+  }
+}
+
+.containererror {
+  position: relative;
+  z-index: 1;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.ufo {
+  width: 100px;
+  position: absolute;
+  top: 20%;
+  left: -120px;
+  animation: flyUFO 12s linear infinite;
+}
+
+@keyframes flyUFO {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(120vw);
+  }
+}
+
+.number {
+  font-size: 160px;
+  font-weight: 900;
+  animation: float 5s ease-in-out infinite;
+  letter-spacing: 10px;
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.message {
+  font-size: 24px;
+  margin-top: 20px;
+  opacity: 0.8;
+}
+
+a.button {
+  margin-top: 30px;
+  padding: 12px 24px;
+  color: white;
+  background-color: rgb(218, 123, 123);
+  border: 2px solid rgb(245, 238, 238);
+  border-radius: 5px;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+a.button:hover {
+  background: rgb(247, 160, 160);
+  color: rgb(255, 255, 255);
+  border: white 1px solid;
+}
+
+#error404 {
+  overflow: hidden;
+  display: none;
+}
+.loader {
+  display: none;
+  position: relative;
+  width: 60px;
+  height: 60px;
+  margin: 60px auto;
+}
+
+.loader span {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 3px solid #3498db;
+  border-radius: 50%;
+  opacity: 0;
+  animation: wave 1.5s ease-out infinite;
+}
+
+.loader span:nth-child(2) {
+  animation-delay: 0.3s;
+}
+
+.loader span:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+@keyframes wave {
+  0% {
+    transform: scale(0.3);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
 }
