@@ -10,45 +10,43 @@
 
   <body>
     <div class="searchContainer" id="searchContainer">
-      <!-- this feature is for level 400  -->
-      <!-- <label for="showType"></label>
-      <select name="showType" id="showType" class="episodeSelector">
-        <option value="all">All shows</option>
-      </select> -->
-
-      <label for="episodeSelector"></label>
-      <select
-        name="episodeSelector"
-        class="episodeSelector"
-        id="episodeSelector"
-      >
-        <option value="default">All Episodes</option>
+      <!-- Level 400: show selector -->
+      <label for="showSelector" class="sr-only">Select show</label>
+      <select id="showSelector" class="episodeSelector">
+        <option value="">Loading shows…</option>
       </select>
 
+      <label for="episodeSelector" class="sr-only">Select episode</label>
+      <select name="episodeSelector" class="episodeSelector" id="episodeSelector">
+        <option value="all">Show All Episodes</option>
+      </select>
+
+      <label for="searchBar" class="sr-only">Search episodes</label>
       <input id="searchBar" type="search" placeholder="Search..." />
-      <label for="searchBar"></label>
-      <p title="  Search For Episodes 🔎">
+
+      <p title="Search For Episodes 🔎">
         Displaying <span id="manyEpisodes"></span> Episodes
       </p>
-      <div class="loader" id="loader">
-        <span></span>
-        <span></span>
-        <span></span>
+
+      <div class="loader" id="loader" aria-hidden="true">
+        <span></span><span></span><span></span>
       </div>
     </div>
+
     <div id="root"></div>
 
     <!-- error element  -->
-    <div id="error404">
+    <div id="error404" style="display:none">
       <div class="stars"></div>
-
       <div class="containererror">
         <div class="number">404</div>
         <div class="message">Oops! You're lost in space.</div>
         <a href="/" class="button">Go Back Home</a>
       </div>
     </div>
+
     <script src="script.js"></script>
+
     <footer>
       <p>
         Data originally from
