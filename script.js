@@ -1,3 +1,10 @@
+/**
+ * Reflection:
+ * - Compared to Salah's code, mine uses more modular rendering functions.
+ * - I prefer my use of fetch caching; he used raw fetch().
+ * - I liked how he used event delegation to simplify event handling.
+ * - I learned about better error handling and rendering defaults.
+ */
 // ---------- Global state ----------
 const state = {
   shows: [],              // full show list
@@ -5,7 +12,7 @@ const state = {
   allEpisodes: [],        // episodes of active show
   filteredEpisodes: [],
   selectedEpisode: null,
-  searchTerm: ""
+  searchTerm: "",
 };
 
 const manyEpisodes = document.getElementById("manyEpisodes");
@@ -18,10 +25,7 @@ const searchInput = document.getElementById("searchBar");
 
 // ---------- One-visit fetch cache ----------
 const fetchCache = new Map();
-/**
- * Never fetch the same URL more than once per visit.
- * Caches the Promise so parallel calls share the same request.
- */
+
 function fetchWithCache(url) {
   if (fetchCache.has(url)) return fetchCache.get(url);
   const p = fetch(url).then(r => {
@@ -50,9 +54,62 @@ function sortShowsAlpha(shows) {
   );
 }
 
+function renderShows(shows) {
+  manyEpisodes.textContent = `${shows.length} shows of ${state.shows.length}`
+  root.innerHTML = ''
+  shows.forEach((show) => {
+    const root = document.getElementById('root')
+    const bar = document.createElement('div')
+    bar.classList.add('bar')
+    const head = document.createElement('h2')
+    head.id = show.id
+    head.innerHTML = show.name
+    if (show.url) {
+      bar.appendChild(head)
+      const rightPart = document.createElement('div')
+      rightPart.classList.add('rightPart')
+      // image
+      const image = document.createElement('img')
+      image.src = show.image.medium
+      image.alt = show.name
+      rightPart.appendChild(image)
+      // rating
+      const rate = document.createElement('p')
+      rate.innerHTML = `<span class = 'bold'> Rating: <br> </span>  ${show.rating.average}`
+      rightPart.appendChild(rate)
+
+      // genres
+      const runtime = document.createElement('p')
+      runtime.innerHTML = ` <span class = 'bold'> RunTime: <br> </span> ${show.runtime}`
+      rightPart.appendChild(runtime)
+
+      // status 
+      const status = document.createElement('p')
+      status.innerHTML = `<span class = 'bold'> Status:<br> </span> ${show.status}`
+      rightPart.appendChild(status)
+      // genres
+      const genre = document.createElement('p')
+      genre.innerHTML = `<span class = 'bold'> Genre:<br> </span>   ${show.genres.join('|')}`
+      rightPart.appendChild(genre)
+
+      // summary
+      const leftPart = document.createElement('div')
+      leftPart.classList.add('leftPart')
+      const summary = document.createElement('p')
+      summary.innerHTML = show.summary
+      leftPart.appendChild(summary)
+      bar.appendChild(rightPart);
+      bar.appendChild(leftPart)
+      root.appendChild(bar)
+    }
+
+  })
+
+}
+
 // ---------- Rendering ----------
 function renderEpisodes(episodes) {
-  manyEpisodes.textContent = `${episodes.length} of ${state.allEpisodes.length}`;
+  manyEpisodes.textContent = `${episodes.length} of ${state.allEpisodes.length} Episodes`;
   root.innerHTML = "";
 
   episodes.forEach(ep => {
@@ -67,28 +124,23 @@ function renderEpisodes(episodes) {
       ? `${ep.name} - ${episodeCode(ep)}`
       : `${ep.name ?? "Episode"}`;
     heading.appendChild(title);
-    container.appendChild(heading);
+    container.appendChild(heading)
 
-    if (ep.url) {
-      const link = document.createElement("a");
-      link.href = ep.url;
-      link.target = "_blank";
-
-      const img = document.createElement("img");
-      // handle missing images
-      const src = ep.image?.medium || ep.image?.original || "https://via.placeholder.com/210x295?text=No+Image";
-      img.src = src;
-      img.alt = ep.name ?? "Episode Image";
-
-      link.appendChild(img);
-      container.appendChild(link);
-    }
+    const img = document.createElement("img");
+    // handle missing images
+    const src = ep.image?.medium || ep.image?.original || "https://via.placeholder.com/210x295?text=No+Image";
+    img.src = src;
+    img.alt = ep.name ?? "Episode Image";
+    container.appendChild(img)
 
     const summary = document.createElement("p");
     summary.innerHTML = safeHtml(ep.summary) || "No summary available.";
-    container.appendChild(summary);
 
+    container.appendChild(summary);
     root.appendChild(container);
+
+
+
   });
 }
 
@@ -119,6 +171,7 @@ function populateShowSelector(shows) {
     opt.value = String(show.id);
     opt.textContent = show.name;
     showSelector.appendChild(opt);
+
   });
 }
 
@@ -126,7 +179,12 @@ function populateShowSelector(shows) {
 async function loadShows() {
   // Requirement: fetch list of available shows once
   // Using the base endpoint per spec (page 0)
-  const url = "https://api.tvmaze.com/shows";
+  const url = `https://api.tvmaze.com/shows `;
+  return fetchWithCache(url);
+}
+function oneShow(show) {
+  root.innerHTML = ''
+  const url = `https://api.tvmaze.com/shows/${show} `;
   return fetchWithCache(url);
 }
 
@@ -142,13 +200,12 @@ async function setActiveShow(showId) {
 
     const episodes = await loadEpisodesForShow(showId);
     state.allEpisodes = episodes;
-    state.filteredEpisodes = [...episodes];
+    state.filteredEpisodes = state.allEpisodes;
     state.selectedEpisode = null;
 
     // Reset search and selectors
     searchInput.value = "";
     populateEpisodeSelector(episodes);
-    renderEpisodes(state.filteredEpisodes);
   } catch (e) {
     console.error(e);
     error404.style.display = "block";
@@ -161,24 +218,33 @@ async function setActiveShow(showId) {
 function handleSearch(e) {
   const term = e.target.value.toLowerCase();
   state.searchTerm = term;
+  if (!state.currentShowId) {
+    const filteredShows = state.shows.filter(show => {
+      const name = show.name?.toLowerCase() ?? "";
+      const summary = show.summary ? show.summary.replace(/<[^>]*>/g, "").toLowerCase() : "";
+      return name.includes(term) || summary.includes(term);
+    });
+    renderShows(filteredShows);
+  } else {
 
-  state.filteredEpisodes = state.allEpisodes.filter(ep => {
-    const name = ep.name?.toLowerCase() ?? "";
-    const summary = ep.summary ? ep.summary.replace(/<[^>]*>/g, "").toLowerCase() : "";
-    const code = episodeCode(ep).toLowerCase();
-    return name.includes(term) || summary.includes(term) || code.includes(term);
-  });
+    state.filteredEpisodes = state.allEpisodes.filter(ep => {
+      const name = ep.name?.toLowerCase() ?? "";
+      const summary = ep.summary ? ep.summary.replace(/<[^>]*>/g, "").toLowerCase() : "";
+      const code = episodeCode(ep).toLowerCase();
+      return name.includes(term) || summary.includes(term) || code.includes(term);
+    });
 
-  state.selectedEpisode = null;
-  episodeSelector.value = "all";
-  renderEpisodes(state.filteredEpisodes);
+    state.selectedEpisode = null;
+    episodeSelector.value = "all";
+    renderEpisodes(state.filteredEpisodes);
+  }
 }
 
 function handleEpisodeSelect(e) {
   const value = e.target.value;
   if (value === "all") {
     state.selectedEpisode = null;
-    renderEpisodes(state.filteredEpisodes);
+    renderEpisodes(state.allEpisodes);
     return;
   }
   const match = state.allEpisodes.find(ep => episodeCode(ep) === value);
@@ -187,7 +253,8 @@ function handleEpisodeSelect(e) {
 }
 
 async function handleShowSelect(e) {
-  const id = e.target.value;
+  root.innerHTML = ''
+  const id = e.value;
   if (!id) return;
   await setActiveShow(id);
 }
@@ -212,20 +279,53 @@ async function setup() {
 
     // 1) Load shows list (cached)
     const shows = await loadShows();
+
     state.shows = shows;
+    renderShows(shows)
     populateShowSelector(shows);
-
     // 2) Pick a default show (first alphabetically)
-    const defaultShow = sortShowsAlpha(shows)[0];
-    if (defaultShow) {
-      showSelector.value = String(defaultShow.id);
-      await setActiveShow(defaultShow.id);
-    }
-
-    // 3) Wire events
     searchInput.addEventListener("input", handleSearch);
     episodeSelector.addEventListener("change", handleEpisodeSelect);
-    showSelector.addEventListener("change", handleShowSelect);
+    showSelector.addEventListener("change", async () => {
+      const show = await oneShow(showSelector.value)
+      await setActiveShow(showSelector.value)
+      searchInput.addEventListener("input", handleSearch);
+      episodeSelector.addEventListener("change", handleEpisodeSelect);
+      renderShows([show])
+      getShow()
+    });
+    getShow()
+    // 3) Wire events
+    function getShow() {
+      document.querySelectorAll('h2').forEach(async (head) => {
+        const episodes = await loadEpisodesForShow(head.id)
+        head.addEventListener('click', () => {
+          shows.forEach(async show => {
+            if (show.id == head.id) {
+              await setActiveShow(head.id)
+              searchInput.addEventListener("input", handleSearch);
+              episodeSelector.addEventListener("change", handleEpisodeSelect);
+              showSelector.addEventListener("change", handleShowSelect);
+              renderEpisodes(episodes)
+            }
+          })
+        })
+      })
+    }
+    // back to all shows
+    const backBtn = document.createElement("button");
+    backBtn.classList.add('back')
+    backBtn.textContent = "Back to Shows";
+    backBtn.addEventListener("click", () => {
+      renderShows(shows)
+      showSelector.value = ''
+      episodeSelector.value = 'all'
+    });
+    document.body.prepend(backBtn);
+    backBtn.addEventListener('click', async () => {
+      episodeSelector.addEventListener("change", handleEpisodeSelect);
+    })
+
   } catch (e) {
     console.error(e);
     error404.style.display = "block";
@@ -233,5 +333,6 @@ async function setup() {
     showLoader(false);
   }
 }
+
 
 window.onload = setup;
