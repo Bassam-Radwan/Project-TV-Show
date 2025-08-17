@@ -272,6 +272,16 @@ window.addEventListener("scroll", () => {
   preScroll = sc;
 });
 
+function resetEpisodeSelector() {
+  episodeSelector.innerHTML = "";
+  const defaultOption = document.createElement("option");
+  defaultOption.value = "all";
+  defaultOption.textContent = "No show selected";
+  episodeSelector.appendChild(defaultOption);
+  episodeSelector.value = "all";
+}
+
+
 // ---------- Init ----------
 async function setup() {
   try {
@@ -282,8 +292,8 @@ async function setup() {
 
     state.shows = shows;
     renderShows(shows)
+    resetEpisodeSelector()
     populateShowSelector(shows);
-    // 2) Pick a default show (first alphabetically)
     searchInput.addEventListener("input", handleSearch);
     episodeSelector.addEventListener("change", handleEpisodeSelect);
     showSelector.addEventListener("change", async () => {
@@ -297,34 +307,32 @@ async function setup() {
     getShow()
     // 3) Wire events
     function getShow() {
-      document.querySelectorAll('h2').forEach(async (head) => {
-        const episodes = await loadEpisodesForShow(head.id)
-        head.addEventListener('click', () => {
-          shows.forEach(async show => {
-            if (show.id == head.id) {
-              await setActiveShow(head.id)
-              searchInput.addEventListener("input", handleSearch);
-              episodeSelector.addEventListener("change", handleEpisodeSelect);
-              showSelector.addEventListener("change", handleShowSelect);
-              renderEpisodes(episodes)
-            }
-          })
-        })
-      })
+      root.addEventListener('click', async (e) => {
+        if (e.target.tagName === 'H2') {
+          const showId = e.target.id;
+          const episodes = await loadEpisodesForShow(showId);
+          await setActiveShow(showId);
+          renderEpisodes(episodes);
+        }
+      });
     }
     // back to all shows
     const backBtn = document.createElement("button");
     backBtn.classList.add('back')
     backBtn.textContent = "Back to Shows";
     backBtn.addEventListener("click", () => {
-      renderShows(shows)
-      showSelector.value = ''
-      episodeSelector.value = 'all'
+      renderShows(state.shows)
+      state.currentShowId = null;       // reset current show
+      state.allEpisodes = [];            // clear episodes list
+      state.filteredEpisodes = [];
+      state.selectedEpisode = null;
+      searchInput.value = ""; 
+
+      resetEpisodeSelector()
+      searchInput.addEventListener("input", handleSearch);
+      episodeSelector.addEventListener("change", handleEpisodeSelect);
     });
     document.body.prepend(backBtn);
-    backBtn.addEventListener('click', async () => {
-      episodeSelector.addEventListener("change", handleEpisodeSelect);
-    })
 
   } catch (e) {
     console.error(e);
